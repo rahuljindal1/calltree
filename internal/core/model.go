@@ -9,7 +9,7 @@ type Function struct {
 	Name  string
 	Start Position
 	End   Position
-	Call  []string
+	Calls []string
 }
 
 type FileAnalysis struct {

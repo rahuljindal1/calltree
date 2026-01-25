@@ -1,6 +1,7 @@
 package main
 
 import (
+	"calltree/internal/core"
 	"calltree/internal/languages/javascript"
 	"fmt"
 	"os"
@@ -33,4 +34,11 @@ func main() {
 
 	fmt.Println("Language:", result.Language)
 	fmt.Println("Functions found:", len(result.Functions))
+
+	tree := core.BuildCallTree(result.Functions)
+
+	for name, node := range tree {
+		core.PrintTree(name, node, "", true)
+		fmt.Println()
+	}
 }

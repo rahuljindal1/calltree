@@ -1,10 +1,16 @@
 package javascript
 
-import "calltree/internal/core"
+import (
+	"context"
+
+	sitter "github.com/smacker/go-tree-sitter"
+	javascript "github.com/smacker/go-tree-sitter/javascript"
+
+	"calltree/internal/core"
+)
 
 type Parser struct{}
 
-// compile-time check
 var _ core.LanguageParser = (*Parser)(nil)
 
 func NewParser() core.LanguageParser {
@@ -12,8 +18,31 @@ func NewParser() core.LanguageParser {
 }
 
 func (p *Parser) Parse(source []byte) (*core.FileAnalysis, error) {
-	return &core.FileAnalysis{
+
+	parser := sitter.NewParser()
+	parser.SetLanguage(javascript.GetLanguage())
+
+	tree, err := parser.ParseCtx(
+		context.Background(),
+		nil,
+		source,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	analysis := &core.FileAnalysis{
 		Language:  "javascript",
-		Functions: map[string]*core.Function{}, // !Note: Why not default set it to Empty?
-	}, nil
+		Functions: make(map[string]*core.Function),
+	}
+
+	visitor := NewVisitor(source, analysis)
+
+	Walk(
+		tree.RootNode(),
+		visitor.Enter,
+		visitor.Exit,
+	)
+
+	return analysis, nil
 }
