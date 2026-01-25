@@ -1,0 +1,15 @@
+version: "3.9"
+name: calltree
+
+services:
+  calltree:
+    container_name: calltree
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    volumes:
+      - ..:/workspace:cached
+    working_dir: /workspace
+    tty: true
+    environment:
+      - GO111MODULE=on

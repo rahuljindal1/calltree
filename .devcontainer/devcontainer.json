@@ -1,0 +1,35 @@
+{
+  "name": "calltree",
+  "dockerComposeFile": [
+    "../docker/docker-compose.yml"
+  ],
+  "service": "calltree",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.Go",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens",
+        "usernamehw.errorlens",
+        "streetsidesoftware.code-spell-checker",
+        "oderwat.indent-rainbow",
+        "ms-vscode.makefile-tools",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "go.useLanguageServer": true,
+        "go.gopath": "/go",
+        "go.toolsManagement.autoUpdate": true,
+        "go.formatTool": "gofmt",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+        },
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+FROM golang:1.22-alpine
+
+RUN apk add --no-cache \
+    git \
+    bash \
+    curl \
+    make \
+    build-base \
+    pkgconfig
+
+WORKDIR /workspace
+
+# Tree-sitter needs CGO
+ENV CGO_ENABLED=1
+
+CMD ["sleep", "infinity"]
