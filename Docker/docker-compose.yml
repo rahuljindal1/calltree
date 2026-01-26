@@ -8,6 +8,10 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.dev
     volumes:
+      # Mount SSH Keys as readonly
+      - ~/.ssh:/root/.ssh:ro
+      # Mount gitconfig
+      - ~/.gitconfig:/root/.gitconfig:ro
       - ..:/workspace:cached
     working_dir: /workspace
     tty: true
