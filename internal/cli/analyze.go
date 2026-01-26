@@ -3,7 +3,6 @@ package cli
 import (
 	"calltree/internal/core"
 	"calltree/internal/languages/javascript"
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -64,7 +63,6 @@ func analyzeFile(filePath string) error {
 	}
 
 	parser := javascript.NewParser()
-
 	result, err := parser.Parse(code)
 	if err != nil {
 		return err
@@ -73,7 +71,12 @@ func analyzeFile(filePath string) error {
 	tree := core.BuildCallTree(result.Functions)
 
 	if jsonOutput {
-		return printJSON(tree, result.Functions)
+		return core.PrintJSON(
+			tree,
+			result.Functions,
+			rootsOnly,
+			depthOnly,
+		)
 	}
 
 	if rootsOnly {
@@ -121,68 +124,4 @@ func printAll(tree map[string]*core.TreeNode) {
 
 		fmt.Println()
 	}
-}
-
-func printJSON(
-	tree map[string]*core.TreeNode,
-	functions map[string]*core.Function,
-) error {
-
-	var roots []string
-
-	if rootsOnly {
-		roots = core.FindRoots(functions)
-	} else {
-		for name := range tree {
-			roots = append(roots, name)
-		}
-	}
-
-	var output []jsonNode
-
-	for _, name := range roots {
-		node := tree[name]
-		if node == nil {
-			continue
-		}
-
-		output = append(
-			output,
-			toJSONNode(node, 0, depthOnly),
-		)
-	}
-
-	enc := json.NewEncoder(os.Stdout)
-	enc.SetIndent("", "  ")
-
-	return enc.Encode(output)
-}
-
-func toJSONNode(
-	node *core.TreeNode,
-	currentDepth int,
-	maxDepth int,
-) jsonNode {
-
-	if maxDepth >= 0 && currentDepth > maxDepth {
-		return jsonNode{}
-	}
-
-	out := jsonNode{
-		Name: node.Name,
-	}
-
-	for _, child := range node.Children {
-		childNode := toJSONNode(
-			child,
-			currentDepth+1,
-			maxDepth,
-		)
-
-		if childNode.Name != "" {
-			out.Children = append(out.Children, childNode)
-		}
-	}
-
-	return out
 }
