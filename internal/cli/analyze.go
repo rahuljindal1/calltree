@@ -20,6 +20,9 @@ var (
 	focusFn    string
 	showFile   bool
 	recursive  bool
+
+	excludeDirs []string
+	extensions  []string
 )
 
 type jsonNode struct {
@@ -77,6 +80,20 @@ func init() {
 		"r",
 		false,
 		"Scan directories recursively",
+	)
+
+	analyzeCmd.Flags().StringSliceVar(
+		&excludeDirs,
+		"exclude-dir",
+		[]string{"node_modules"},
+		"Directories to exclude (comma-separated)",
+	)
+
+	analyzeCmd.Flags().StringSliceVar(
+		&extensions,
+		"ext",
+		[]string{".js"},
+		"File extensions to include (comma-separated)",
 	)
 
 	rootCmd.AddCommand(analyzeCmd)
@@ -170,16 +187,23 @@ func analyzeDirectory(root string) (map[string]*core.Function, error) {
 			return err
 		}
 
-		// Skip common noise
-		if d.IsDir() && d.Name() == "node_modules" {
-			return filepath.SkipDir
-		}
-
 		if d.IsDir() {
+			for _, dir := range excludeDirs {
+				if d.Name() == dir {
+					return filepath.SkipDir
+				}
+			}
 			return nil
 		}
 
-		if !strings.HasSuffix(path, ".js") {
+		matched := false
+		for _, ext := range extensions {
+			if strings.HasSuffix(path, ext) {
+				matched = true
+				break
+			}
+		}
+		if !matched {
 			return nil
 		}
 
@@ -189,7 +213,6 @@ func analyzeDirectory(root string) (map[string]*core.Function, error) {
 		}
 
 		for name, fn := range fileFunctions {
-			// last definition wins (documented limitation)
 			functions[name] = fn
 		}
 
