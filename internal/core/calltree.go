@@ -5,7 +5,6 @@ type TreeNode struct {
 	Children map[string]*TreeNode
 }
 
-// BuildCallTree builds a call hierarchy for each root function.
 func BuildCallTree(functions map[string]*Function) map[string]*TreeNode {
 
 	result := make(map[string]*TreeNode)

@@ -3,7 +3,6 @@ package core
 import "fmt"
 
 func PrintTree(name string, node *TreeNode, prefix string, isLast bool) {
-
 	if prefix == "" {
 		fmt.Println(name)
 	} else {
@@ -23,12 +22,10 @@ func PrintTree(name string, node *TreeNode, prefix string, isLast bool) {
 		last := i == len(children)-1
 
 		nextPrefix := prefix
-		if prefix != "" {
-			if isLast {
-				nextPrefix += "   "
-			} else {
-				nextPrefix += "│  "
-			}
+		if isLast {
+			nextPrefix += "   "
+		} else {
+			nextPrefix += "│  "
 		}
 
 		PrintTree(

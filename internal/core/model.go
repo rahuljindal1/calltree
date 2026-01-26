@@ -7,8 +7,6 @@ type Position struct {
 
 type Function struct {
 	Name  string
-	Start Position
-	End   Position
 	Calls []string
 }
 

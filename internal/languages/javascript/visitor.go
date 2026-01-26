@@ -46,19 +46,8 @@ func (v *Visitor) Enter(node *sitter.Node) {
 
 		name := nameNode.Content(v.source)
 
-		start := node.StartPoint()
-		end := node.EndPoint()
-
 		fn := &core.Function{
-			Name: name,
-			Start: core.Position{
-				Line:   start.Row + 1,
-				Column: start.Column + 1,
-			},
-			End: core.Position{
-				Line:   end.Row + 1,
-				Column: end.Column + 1,
-			},
+			Name:  name,
 			Calls: []string{},
 		}
 
