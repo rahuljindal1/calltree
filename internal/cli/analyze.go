@@ -12,6 +12,7 @@ var (
 	focusFn    string
 	showFile   bool
 	recursive  bool
+	rerun      bool
 
 	excludeDirs []string
 	extensions  []string
@@ -27,6 +28,7 @@ func init() {
 	analyzeCmd.Flags().BoolVarP(&recursive, "recursive", "r", false, "Scan directories recursively")
 	analyzeCmd.Flags().StringSliceVar(&excludeDirs, "exclude-dir", []string{}, "Directories to exclude")
 	analyzeCmd.Flags().StringSliceVar(&extensions, "ext", []string{}, "File extensions to include")
+	analyzeCmd.Flags().BoolVar(&rerun, "rerun", false, "Re-run the last analysis configuration")
 
 	rootCmd.AddCommand(analyzeCmd)
 }
@@ -41,6 +43,9 @@ var analyzeCmd = &cobra.Command{
 		// Interactive mode
 		// -----------------------------------
 		if len(args) == 0 {
+			if rerun {
+				return runLastAnalysis()
+			}
 			return runInteractiveAnalyze()
 		}
 

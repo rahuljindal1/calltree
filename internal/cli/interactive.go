@@ -9,8 +9,36 @@ import (
 	"strings"
 )
 
+func runLastAnalysis() error {
+	cfg, err := loadLastRun()
+	if err != nil {
+		return fmt.Errorf(
+			"no previous run found (run analyze once first)",
+		)
+	}
+
+	applyConfig(cfg)
+	return analyzeFile(cfg.Path)
+}
+
 func runInteractiveAnalyze() error {
 	reader := bufio.NewReader(os.Stdin)
+
+	// 🔁 RERUN PROMPT (FIRST)
+	if cfg, err := loadLastRun(); err == nil {
+		printConfig(cfg)
+
+		fmt.Print("Re-run this configuration? (Y/n): ")
+		ans, _ := readLine(reader)
+
+		if ans == "" || strings.EqualFold(ans, "y") {
+			applyConfig(cfg)
+			fmt.Println("\nRe-running previous analysis...\n")
+			return analyzeFile(cfg.Path)
+		}
+
+		fmt.Println("\nStarting a new interactive analysis...\n")
+	}
 
 	fmt.Println("Calltree Interactive Analysis")
 	fmt.Println("------------------------------")
@@ -67,55 +95,34 @@ func runInteractiveAnalyze() error {
 	fmt.Print("Show file names? (y/N): ")
 	showFile = strings.EqualFold(mustRead(reader), "y")
 
-	fmt.Println("\nRunning analysis...\n")
+	cfg := AnalyzeConfig{
+		Path:        path,
+		Recursive:   recursive,
+		ExcludeDirs: excludeDirs,
+		Extensions:  extensions,
+		FocusFn:     focusFn,
+		Depth:       depthOnly,
+		JSON:        jsonOutput,
+		JSONFile:    jsonFile,
+		ShowFile:    showFile,
+		RootsOnly:   rootsOnly,
+	}
 
-	cmd := buildCommand(path)
-
-	fmt.Println("Reusable command:")
-	fmt.Println(cmd)
-	fmt.Println()
+	_ = saveLastRun(cfg)
 
 	return analyzeFile(path)
 }
 
-func buildCommand(path string) string {
-	args := []string{"go run cmd/calltree/main.go", "analyze"}
-
-	args = append(args, strconv.Quote(path))
-
-	if recursive {
-		args = append(args, "--recursive")
-	}
-
-	if len(excludeDirs) > 0 {
-		args = append(args, "--exclude-dir="+strings.Join(excludeDirs, ","))
-	}
-
-	if len(extensions) > 0 {
-		args = append(args, "--ext="+strings.Join(extensions, ","))
-	}
-
-	if focusFn != "" {
-		args = append(args, "--focus="+focusFn)
-	}
-
-	if depthOnly != 0 {
-		args = append(args, "--depth="+strconv.Itoa(depthOnly))
-	}
-
-	if jsonOutput {
-		args = append(args, "--json")
-
-		if jsonFile != "" {
-			args = append(args, "--json-file="+jsonFile)
-		}
-	}
-
-	if showFile {
-		args = append(args, "--show-file")
-	}
-
-	return strings.Join(args, " ")
+func applyConfig(cfg *AnalyzeConfig) {
+	recursive = cfg.Recursive
+	excludeDirs = cfg.ExcludeDirs
+	extensions = cfg.Extensions
+	focusFn = cfg.FocusFn
+	depthOnly = cfg.Depth
+	jsonOutput = cfg.JSON
+	jsonFile = cfg.JSONFile
+	showFile = cfg.ShowFile
+	rootsOnly = cfg.RootsOnly
 }
 
 func readLine(r *bufio.Reader) (string, error) {
