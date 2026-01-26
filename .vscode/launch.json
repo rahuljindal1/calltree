@@ -7,7 +7,7 @@
       "request": "launch",
       "mode": "debug",
       "program": "${workspaceFolder}/cmd/calltree",
-      "args": ["analyze", "${workspaceFolder}/mocks/complex.js"],
+      "args": ["analyze", "${workspaceFolder}/mocks/user.ts"],
       "cwd": "${workspaceFolder}",
       "env": {
         "CGO_ENABLED": "1"

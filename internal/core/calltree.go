@@ -15,15 +15,9 @@ func BuildCallTree(functions map[string]*Function) map[string]*TreeNode {
 	build = func(name string, visited map[string]bool) *TreeNode {
 
 		if visited[name] {
-			fn := functions[name]
-			file := ""
-			if fn != nil {
-				file = fn.File
-			}
-
 			return &TreeNode{
 				Name:     name,
-				File:     file,
+				File:     functions[name].File,
 				Children: []*TreeNode{},
 			}
 		}
@@ -32,23 +26,26 @@ func BuildCallTree(functions map[string]*Function) map[string]*TreeNode {
 
 		fn := functions[name]
 
+		file := ""
+		calls := []string{}
+
+		if fn != nil {
+			file = fn.File
+			calls = fn.Calls
+		}
+
 		node := &TreeNode{
 			Name:     name,
-			File:     fn.File,
+			File:     file,
 			Children: []*TreeNode{},
 		}
 
-		if fn == nil {
-			return node
-		}
+		for _, called := range calls {
 
-		for _, called := range fn.Calls {
-			if functions[called] != nil {
-				node.Children = append(
-					node.Children,
-					build(called, copyVisited(visited)),
-				)
-			}
+			node.Children = append(
+				node.Children,
+				build(called, copyVisited(visited)),
+			)
 		}
 
 		return node
