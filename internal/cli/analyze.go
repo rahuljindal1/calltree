@@ -14,6 +14,7 @@ var (
 	jsonOutput bool
 	rootsOnly  bool
 	jsonFile   string
+	focusFn    string
 )
 
 type jsonNode struct {
@@ -51,6 +52,13 @@ func init() {
 		"Write JSON output to the specified file",
 	)
 
+	analyzeCmd.Flags().StringVar(
+		&focusFn,
+		"focus",
+		"",
+		"Show call tree starting from a specific function",
+	)
+
 	rootCmd.AddCommand(analyzeCmd)
 }
 
@@ -77,6 +85,33 @@ func analyzeFile(filePath string) error {
 	}
 
 	tree := core.BuildCallTree(result.Functions)
+
+	if focusFn != "" {
+		node, ok := tree[focusFn]
+		if !ok {
+			return fmt.Errorf("function %q not found", focusFn)
+		}
+
+		if jsonOutput {
+			return core.PrintJSON(
+				map[string]*core.TreeNode{focusFn: node},
+				result.Functions,
+				rootsOnly,
+				depthOnly,
+				jsonFile,
+			)
+		}
+
+		core.PrintTree(
+			node,
+			"",
+			true,
+			0,
+			depthOnly,
+		)
+		fmt.Println()
+		return nil
+	}
 
 	if jsonOutput {
 		return core.PrintJSON(
