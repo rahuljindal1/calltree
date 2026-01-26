@@ -48,6 +48,12 @@ If no arguments are provided, calltree starts in interactive mode and guides you
 Analyze a single file
 
 ```
+calltree analyze src/app.js
+```
+
+Analyze a directory recursively
+
+```
 calltree analyze src -r
 ```
 
