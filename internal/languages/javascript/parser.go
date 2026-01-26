@@ -36,7 +36,7 @@ func (p *Parser) Parse(source []byte, fileName string) (*core.FileAnalysis, erro
 		Functions: make(map[string]*core.Function),
 	}
 
-	visitor := NewVisitor(source, analysis)
+	visitor := NewVisitor(source, fileName, analysis)
 
 	Walk(
 		tree.RootNode(),

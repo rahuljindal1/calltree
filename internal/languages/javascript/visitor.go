@@ -15,11 +15,13 @@ type Visitor struct {
 
 func NewVisitor(
 	source []byte,
+	fileName string,
 	analysis *core.FileAnalysis,
 ) *Visitor {
 	return &Visitor{
 		source:   source,
 		analysis: analysis,
+		fileName: fileName,
 		stack:    []*core.Function{},
 	}
 }
