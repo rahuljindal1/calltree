@@ -5,6 +5,7 @@ import (
 	"calltree/internal/languages/javascript"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
@@ -15,6 +16,8 @@ var (
 	rootsOnly  bool
 	jsonFile   string
 	focusFn    string
+	recursive  bool
+	showFile   bool
 )
 
 type jsonNode struct {
@@ -59,6 +62,21 @@ func init() {
 		"Show call tree starting from a specific function",
 	)
 
+	analyzeCmd.Flags().BoolVarP(
+		&recursive,
+		"recursive",
+		"r",
+		false,
+		"Scan directories recursively",
+	)
+
+	analyzeCmd.Flags().BoolVar(
+		&showFile,
+		"show-file",
+		false,
+		"Show source file name for each function",
+	)
+
 	rootCmd.AddCommand(analyzeCmd)
 }
 
@@ -79,12 +97,12 @@ func analyzeFile(filePath string) error {
 	}
 
 	parser := javascript.NewParser()
-	result, err := parser.Parse(code)
+	result, err := parser.Parse(code, filepath.Base(filePath))
 	if err != nil {
 		return err
 	}
 
-	tree := core.BuildCallTree(result.Functions)
+	tree := core.BuildCallTree(result.Functions, filepath.Base(filePath))
 
 	if focusFn != "" {
 		node, ok := tree[focusFn]
@@ -108,6 +126,7 @@ func analyzeFile(filePath string) error {
 			true,
 			0,
 			depthOnly,
+			showFile,
 		)
 		fmt.Println()
 		return nil
@@ -150,6 +169,7 @@ func printRootsOnly(
 			true,
 			0,
 			depthOnly,
+			showFile,
 		)
 
 		fmt.Println()
@@ -164,6 +184,7 @@ func printAll(tree map[string]*core.TreeNode) {
 			true,
 			0,
 			depthOnly,
+			showFile,
 		)
 
 		fmt.Println()

@@ -2,10 +2,11 @@ package core
 
 type TreeNode struct {
 	Name     string
+	File     string
 	Children []*TreeNode
 }
 
-func BuildCallTree(functions map[string]*Function) map[string]*TreeNode {
+func BuildCallTree(functions map[string]*Function, fileName string) map[string]*TreeNode {
 
 	result := make(map[string]*TreeNode)
 
@@ -16,6 +17,7 @@ func BuildCallTree(functions map[string]*Function) map[string]*TreeNode {
 		if visited[name] {
 			return &TreeNode{
 				Name:     name,
+				File:     fileName,
 				Children: []*TreeNode{},
 			}
 		}
@@ -24,6 +26,7 @@ func BuildCallTree(functions map[string]*Function) map[string]*TreeNode {
 
 		node := &TreeNode{
 			Name:     name,
+			File:     fileName,
 			Children: []*TreeNode{},
 		}
 

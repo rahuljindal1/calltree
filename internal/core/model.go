@@ -6,7 +6,9 @@ type Position struct {
 }
 
 type Function struct {
-	Name  string
+	Name string
+	File string
+
 	Calls []string
 }
 

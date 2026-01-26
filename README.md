@@ -5,7 +5,7 @@
 | `--depth`, `-d`       | `--depth 3`                  | Limits call hierarchy depth      | Prevents huge output           | ✅ Implemented |
 | `--roots-only`        | `--roots-only`               | Shows only entry-point functions | Identifies app starting points | ✅ Implemented |
 | `--json`              | `--json`                     | Outputs call tree as JSON        | Machine-readable output        | ✅ Implemented |
-| `--focus <fn>`        | `--focus initApp`            | Shows tree only from a function  | Targeted analysis              | ❌ Not yet     |
+| `--focus <fn>`        | `--focus initApp`            | Shows tree only from a function  | Targeted analysis              | ✅ Implemented |
 | `--lang <lang>`       | `--lang js`                  | Forces language parser           | Needed for multi-lang support  | ❌ Not yet     |
 | `--recursive`, `-r`   | `-r ./src`                   | Scan directories recursively     | Real projects use folders      | ❌ Not yet     |
 | `--exclude-dir`       | `--exclude-dir node_modules` | Skip directories                 | Avoid noise                    | ❌ Not yet     |

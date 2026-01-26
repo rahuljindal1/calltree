@@ -8,6 +8,7 @@ import (
 
 type Visitor struct {
 	source   []byte
+	fileName string
 	analysis *core.FileAnalysis
 	stack    []*core.Function
 }
@@ -48,6 +49,7 @@ func (v *Visitor) Enter(node *sitter.Node) {
 
 		fn := &core.Function{
 			Name:  name,
+			File:  v.fileName,
 			Calls: []string{},
 		}
 

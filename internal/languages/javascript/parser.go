@@ -17,7 +17,7 @@ func NewParser() core.LanguageParser {
 	return &Parser{}
 }
 
-func (p *Parser) Parse(source []byte) (*core.FileAnalysis, error) {
+func (p *Parser) Parse(source []byte, fileName string) (*core.FileAnalysis, error) {
 
 	parser := sitter.NewParser()
 	parser.SetLanguage(javascript.GetLanguage())
