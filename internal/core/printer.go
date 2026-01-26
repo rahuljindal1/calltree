@@ -2,15 +2,20 @@ package core
 
 import "fmt"
 
-func PrintTree(name string, node *TreeNode, prefix string, isLast bool) {
+func PrintTree(node *TreeNode, prefix string, isLast bool, currentDepth int,
+	maxDepth int) {
+	if maxDepth >= 0 && currentDepth > maxDepth {
+		return
+	}
+
 	if prefix == "" {
-		fmt.Println(name)
+		fmt.Println(node.Name)
 	} else {
 		branch := "├─ "
 		if isLast {
 			branch = "└─ "
 		}
-		fmt.Println(prefix + branch + name)
+		fmt.Println(prefix + branch + node.Name)
 	}
 
 	for i, child := range node.Children {
@@ -24,10 +29,11 @@ func PrintTree(name string, node *TreeNode, prefix string, isLast bool) {
 		}
 
 		PrintTree(
-			child.Name,
 			child,
 			nextPrefix,
 			last,
+			currentDepth+1,
+			maxDepth,
 		)
 	}
 }

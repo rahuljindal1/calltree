@@ -47,33 +47,68 @@ var analyzeCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-
-		filePath := args[0]
-
-		code, err := os.ReadFile(filePath)
-		if err != nil {
-			return err
-		}
-
-		parser := javascript.NewParser()
-
-		result, err := parser.Parse(code)
-		if err != nil {
-			return err
-		}
-
-		tree := core.BuildCallTree(result.Functions)
-
-		for name, node := range tree {
-			core.PrintTree(
-				name,
-				node,
-				"",
-				true,
-			)
-			fmt.Println()
-		}
-
-		return nil
+		return analyzeFile(args[0])
 	},
+}
+
+func analyzeFile(filePath string) error {
+	code, err := os.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	parser := javascript.NewParser()
+
+	result, err := parser.Parse(code)
+	if err != nil {
+		return err
+	}
+
+	tree := core.BuildCallTree(result.Functions)
+
+	if rootsOnly {
+		printRootsOnly(tree, result.Functions)
+		return nil
+	}
+
+	printAll(tree)
+	return nil
+}
+
+func printRootsOnly(
+	tree map[string]*core.TreeNode,
+	functions map[string]*core.Function,
+) {
+	roots := core.FindRoots(functions)
+
+	for _, name := range roots {
+		node := tree[name]
+		if node == nil {
+			continue
+		}
+
+		core.PrintTree(
+			node,
+			"",
+			true,
+			0,
+			depthOnly,
+		)
+
+		fmt.Println()
+	}
+}
+
+func printAll(tree map[string]*core.TreeNode) {
+	for _, node := range tree {
+		core.PrintTree(
+			node,
+			"",
+			true,
+			0,
+			depthOnly,
+		)
+
+		fmt.Println()
+	}
 }
