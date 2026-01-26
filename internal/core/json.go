@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 )
 
 type JSONNode struct {
@@ -15,6 +16,7 @@ func PrintJSON(
 	functions map[string]*Function,
 	rootsOnly bool,
 	maxDepth int,
+	outputPath string,
 ) error {
 
 	var roots []string
@@ -38,7 +40,30 @@ func PrintJSON(
 		output = append(output, toJSONNode(node, 0, maxDepth))
 	}
 
-	enc := json.NewEncoder(os.Stdout)
+	var (
+		writer *os.File
+		err    error
+	)
+
+	if outputPath == "" {
+		writer = os.Stdout
+	} else {
+		// Ensure parent directories exist
+		dir := filepath.Dir(outputPath)
+		if dir != "." {
+			if err := os.MkdirAll(dir, 0o755); err != nil {
+				return err
+			}
+		}
+
+		writer, err = os.Create(outputPath)
+		if err != nil {
+			return err
+		}
+		defer writer.Close()
+	}
+
+	enc := json.NewEncoder(writer)
 	enc.SetIndent("", "  ")
 	return enc.Encode(output)
 }

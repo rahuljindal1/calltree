@@ -13,6 +13,7 @@ var (
 	depthOnly  int
 	jsonOutput bool
 	rootsOnly  bool
+	jsonFile   string
 )
 
 type jsonNode struct {
@@ -41,6 +42,13 @@ func init() {
 		"roots-only",
 		false,
 		"Print only root functions",
+	)
+
+	analyzeCmd.Flags().StringVar(
+		&jsonFile,
+		"json-file",
+		"",
+		"Write JSON output to the specified file",
 	)
 
 	rootCmd.AddCommand(analyzeCmd)
@@ -76,6 +84,7 @@ func analyzeFile(filePath string) error {
 			result.Functions,
 			rootsOnly,
 			depthOnly,
+			jsonFile,
 		)
 	}
 
