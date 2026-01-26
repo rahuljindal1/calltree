@@ -9,12 +9,14 @@ import (
 	"calltree/internal/core"
 )
 
-type Parser struct{}
+type Parser struct {
+	opts core.ParseOptions
+}
 
 var _ core.LanguageParser = (*Parser)(nil)
 
-func NewParser() core.LanguageParser {
-	return &Parser{}
+func NewParser(opts core.ParseOptions) core.LanguageParser {
+	return &Parser{opts: opts}
 }
 
 func (p *Parser) Parse(source []byte, fileName string) (*core.FileAnalysis, error) {
@@ -36,7 +38,7 @@ func (p *Parser) Parse(source []byte, fileName string) (*core.FileAnalysis, erro
 		Functions: make(map[string]*core.Function),
 	}
 
-	visitor := NewVisitor(source, fileName, analysis)
+	visitor := NewVisitor(source, fileName, analysis, core.ParseOptions{IncludeBuiltins: p.opts.IncludeBuiltins})
 
 	Walk(
 		tree.RootNode(),

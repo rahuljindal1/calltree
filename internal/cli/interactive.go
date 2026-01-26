@@ -55,9 +55,14 @@ func runInteractiveAnalyze() error {
 	}
 
 	if info.IsDir() {
-		fmt.Print("Scan recursively? (y/N): ")
+		fmt.Print("Scan recursively? (Y/n), Default = YES: ")
 		ans, _ := readLine(reader)
-		recursive = strings.EqualFold(ans, "y")
+
+		if ans == "" || strings.EqualFold(ans, "y") {
+			recursive = true
+		} else {
+			recursive = false
+		}
 
 		fmt.Printf("Exclude directories [%s]: ", strings.Join(excludeDirs, ","))
 		if v, _ := readLine(reader); v != "" {
@@ -95,17 +100,21 @@ func runInteractiveAnalyze() error {
 	fmt.Print("Show file names? (y/N): ")
 	showFile = strings.EqualFold(mustRead(reader), "y")
 
+	fmt.Print("Include built-in calls (map, includes, Number, etc.)? (y/N), Default = NO: ")
+	includeBuiltins = strings.EqualFold(mustRead(reader), "y")
+
 	cfg := AnalyzeConfig{
-		Path:        path,
-		Recursive:   recursive,
-		ExcludeDirs: excludeDirs,
-		Extensions:  extensions,
-		FocusFn:     focusFn,
-		Depth:       depthOnly,
-		JSON:        jsonOutput,
-		JSONFile:    jsonFile,
-		ShowFile:    showFile,
-		RootsOnly:   rootsOnly,
+		Path:            path,
+		Recursive:       recursive,
+		ExcludeDirs:     excludeDirs,
+		Extensions:      extensions,
+		FocusFn:         focusFn,
+		Depth:           depthOnly,
+		JSON:            jsonOutput,
+		JSONFile:        jsonFile,
+		ShowFile:        showFile,
+		RootsOnly:       rootsOnly,
+		IncludeBuiltins: includeBuiltins,
 	}
 
 	_ = saveLastRun(cfg)
@@ -123,6 +132,7 @@ func applyConfig(cfg *AnalyzeConfig) {
 	jsonFile = cfg.JSONFile
 	showFile = cfg.ShowFile
 	rootsOnly = cfg.RootsOnly
+	includeBuiltins = cfg.IncludeBuiltins
 }
 
 func readLine(r *bufio.Reader) (string, error) {

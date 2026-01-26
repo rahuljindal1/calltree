@@ -11,16 +11,17 @@ const lastRunDir = ".calltree"
 const lastRunFile = "last-run.json"
 
 type AnalyzeConfig struct {
-	Path        string   `json:"path"`
-	Recursive   bool     `json:"recursive"`
-	ExcludeDirs []string `json:"excludeDirs"`
-	Extensions  []string `json:"extensions"`
-	FocusFn     string   `json:"focusFn"`
-	Depth       int      `json:"depth"`
-	JSON        bool     `json:"json"`
-	JSONFile    string   `json:"jsonFile"`
-	ShowFile    bool     `json:"showFile"`
-	RootsOnly   bool     `json:"rootsOnly"`
+	Path            string   `json:"path"`
+	Recursive       bool     `json:"recursive"`
+	ExcludeDirs     []string `json:"excludeDirs"`
+	Extensions      []string `json:"extensions"`
+	FocusFn         string   `json:"focusFn"`
+	Depth           int      `json:"depth"`
+	JSON            bool     `json:"json"`
+	JSONFile        string   `json:"jsonFile"`
+	ShowFile        bool     `json:"showFile"`
+	RootsOnly       bool     `json:"rootsOnly"`
+	IncludeBuiltins bool     `json:"includeBuiltins"`
 }
 
 func saveLastRun(cfg AnalyzeConfig) error {
@@ -69,5 +70,6 @@ func printConfig(cfg *AnalyzeConfig) {
 	fmt.Printf("JSONFile    : %s\n", cfg.JSONFile)
 	fmt.Printf("ShowFile    : %v\n", cfg.ShowFile)
 	fmt.Printf("RootsOnly   : %v\n", cfg.RootsOnly)
+	fmt.Printf("IncludeBuiltins   : %v\n", cfg.IncludeBuiltins)
 	fmt.Println("----------------------------")
 }

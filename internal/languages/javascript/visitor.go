@@ -1,30 +1,35 @@
 package javascript
 
 import (
+	"strings"
+
 	sitter "github.com/smacker/go-tree-sitter"
 
 	"calltree/internal/core"
 )
 
 type Visitor struct {
-	source     []byte
-	fileName   string
-	analysis   *core.FileAnalysis
-	fnStack    []*core.Function
-	classStack []string
+	source          []byte
+	fileName        string
+	analysis        *core.FileAnalysis
+	fnStack         []*core.Function
+	classStack      []string
+	includeBuiltins bool
 }
 
 func NewVisitor(
 	source []byte,
 	fileName string,
 	analysis *core.FileAnalysis,
+	opts core.ParseOptions,
 ) *Visitor {
 	return &Visitor{
-		source:     source,
-		fileName:   fileName,
-		analysis:   analysis,
-		fnStack:    []*core.Function{},
-		classStack: []string{},
+		source:          source,
+		fileName:        fileName,
+		analysis:        analysis,
+		fnStack:         []*core.Function{},
+		classStack:      []string{},
+		includeBuiltins: opts.IncludeBuiltins,
 	}
 }
 
@@ -113,20 +118,25 @@ func (v *Visitor) Enter(node *sitter.Node) {
 			return
 		}
 
-		switch callee.Type() {
+		var callName string
 
+		switch callee.Type() {
 		case "identifier":
-			current.Calls = append(
-				current.Calls,
-				callee.Content(v.source),
-			)
+			callName = callee.Content(v.source)
 
 		case "member_expression":
-			name := extractMemberName(callee, v.source)
-			if name != "" {
-				current.Calls = append(current.Calls, name)
-			}
+			callName = extractMemberName(callee, v.source)
 		}
+
+		if callName == "" {
+			return
+		}
+
+		if !v.includeBuiltins && isIgnoredCall(stripMember(callName)) {
+			return
+		}
+
+		current.Calls = append(current.Calls, callName)
 	}
 }
 
@@ -178,4 +188,11 @@ func extractMemberName(node *sitter.Node, source []byte) string {
 	}
 
 	return prop
+}
+
+func stripMember(name string) string {
+	if i := strings.LastIndex(name, "."); i >= 0 {
+		return name[i+1:]
+	}
+	return name
 }

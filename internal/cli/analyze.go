@@ -5,14 +5,15 @@ import (
 )
 
 var (
-	depthOnly  int
-	jsonOutput bool
-	rootsOnly  bool
-	jsonFile   string
-	focusFn    string
-	showFile   bool
-	recursive  bool
-	rerun      bool
+	depthOnly       int
+	jsonOutput      bool
+	rootsOnly       bool
+	jsonFile        string
+	focusFn         string
+	showFile        bool
+	recursive       bool
+	rerun           bool
+	includeBuiltins bool
 
 	excludeDirs []string
 	extensions  []string
@@ -29,6 +30,7 @@ func init() {
 	analyzeCmd.Flags().StringSliceVar(&excludeDirs, "exclude-dir", []string{}, "Directories to exclude")
 	analyzeCmd.Flags().StringSliceVar(&extensions, "ext", []string{}, "File extensions to include")
 	analyzeCmd.Flags().BoolVar(&rerun, "rerun", false, "Re-run the last analysis configuration")
+	analyzeCmd.Flags().BoolVar(&includeBuiltins, "include-builtins", false, "Include language built-in calls (map, includes, Number, etc.)")
 
 	rootCmd.AddCommand(analyzeCmd)
 }

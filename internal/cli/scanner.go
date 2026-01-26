@@ -51,7 +51,7 @@ func analyzeSingleFile(filePath string) (map[string]*core.Function, error) {
 		return nil, err
 	}
 
-	parser := javascript.NewParser()
+	parser := javascript.NewParser(core.ParseOptions{IncludeBuiltins: includeBuiltins})
 
 	result, err := parser.Parse(code, filepath.Base(filePath))
 	if err != nil {
