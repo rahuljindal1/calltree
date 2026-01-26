@@ -4,8 +4,10 @@ import (
 	"calltree/internal/core"
 	"calltree/internal/languages/javascript"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -16,8 +18,8 @@ var (
 	rootsOnly  bool
 	jsonFile   string
 	focusFn    string
-	recursive  bool
 	showFile   bool
+	recursive  bool
 )
 
 type jsonNode struct {
@@ -62,19 +64,19 @@ func init() {
 		"Show call tree starting from a specific function",
 	)
 
+	analyzeCmd.Flags().BoolVar(
+		&showFile,
+		"show-file",
+		false,
+		"Show source file name for each function",
+	)
+
 	analyzeCmd.Flags().BoolVarP(
 		&recursive,
 		"recursive",
 		"r",
 		false,
 		"Scan directories recursively",
-	)
-
-	analyzeCmd.Flags().BoolVar(
-		&showFile,
-		"show-file",
-		false,
-		"Show source file name for each function",
 	)
 
 	rootCmd.AddCommand(analyzeCmd)
@@ -90,19 +92,28 @@ var analyzeCmd = &cobra.Command{
 	},
 }
 
-func analyzeFile(filePath string) error {
-	code, err := os.ReadFile(filePath)
+func analyzeFile(path string) error {
+	info, err := os.Stat(path)
 	if err != nil {
 		return err
 	}
 
-	parser := javascript.NewParser()
-	result, err := parser.Parse(code, filepath.Base(filePath))
+	var functions map[string]*core.Function
+
+	if info.IsDir() {
+		if !recursive {
+			return fmt.Errorf("path %q is a directory, use --recursive", path)
+		}
+		functions, err = analyzeDirectory(path)
+	} else {
+		functions, err = analyzeSingleFile(path)
+	}
+
 	if err != nil {
 		return err
 	}
 
-	tree := core.BuildCallTree(result.Functions, filepath.Base(filePath))
+	tree := core.BuildCallTree(functions)
 
 	if focusFn != "" {
 		node, ok := tree[focusFn]
@@ -113,7 +124,7 @@ func analyzeFile(filePath string) error {
 		if jsonOutput {
 			return core.PrintJSON(
 				map[string]*core.TreeNode{focusFn: node},
-				result.Functions,
+				functions,
 				rootsOnly,
 				depthOnly,
 				jsonFile,
@@ -135,7 +146,7 @@ func analyzeFile(filePath string) error {
 	if jsonOutput {
 		return core.PrintJSON(
 			tree,
-			result.Functions,
+			functions,
 			rootsOnly,
 			depthOnly,
 			jsonFile,
@@ -143,12 +154,68 @@ func analyzeFile(filePath string) error {
 	}
 
 	if rootsOnly {
-		printRootsOnly(tree, result.Functions)
+		printRootsOnly(tree, functions)
 		return nil
 	}
 
 	printAll(tree)
 	return nil
+}
+
+func analyzeDirectory(root string) (map[string]*core.Function, error) {
+	functions := make(map[string]*core.Function)
+
+	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// Skip common noise
+		if d.IsDir() && d.Name() == "node_modules" {
+			return filepath.SkipDir
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		if !strings.HasSuffix(path, ".js") {
+			return nil
+		}
+
+		fileFunctions, err := analyzeSingleFile(path)
+		if err != nil {
+			return err
+		}
+
+		for name, fn := range fileFunctions {
+			// last definition wins (documented limitation)
+			functions[name] = fn
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return functions, nil
+}
+
+func analyzeSingleFile(filePath string) (map[string]*core.Function, error) {
+	code, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	parser := javascript.NewParser()
+	result, err := parser.Parse(code, filepath.Base(filePath))
+	if err != nil {
+		return nil, err
+	}
+
+	return result.Functions, nil
 }
 
 func printRootsOnly(

@@ -6,7 +6,7 @@ type TreeNode struct {
 	Children []*TreeNode
 }
 
-func BuildCallTree(functions map[string]*Function, fileName string) map[string]*TreeNode {
+func BuildCallTree(functions map[string]*Function) map[string]*TreeNode {
 
 	result := make(map[string]*TreeNode)
 
@@ -15,22 +15,29 @@ func BuildCallTree(functions map[string]*Function, fileName string) map[string]*
 	build = func(name string, visited map[string]bool) *TreeNode {
 
 		if visited[name] {
+			fn := functions[name]
+			file := ""
+			if fn != nil {
+				file = fn.File
+			}
+
 			return &TreeNode{
 				Name:     name,
-				File:     fileName,
+				File:     file,
 				Children: []*TreeNode{},
 			}
 		}
 
 		visited[name] = true
 
+		fn := functions[name]
+
 		node := &TreeNode{
 			Name:     name,
-			File:     fileName,
+			File:     fn.File,
 			Children: []*TreeNode{},
 		}
 
-		fn := functions[name]
 		if fn == nil {
 			return node
 		}
