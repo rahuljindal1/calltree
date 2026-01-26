@@ -2,7 +2,7 @@ package core
 
 type TreeNode struct {
 	Name     string
-	Children map[string]*TreeNode
+	Children []*TreeNode
 }
 
 func BuildCallTree(functions map[string]*Function) map[string]*TreeNode {
@@ -16,7 +16,7 @@ func BuildCallTree(functions map[string]*Function) map[string]*TreeNode {
 		if visited[name] {
 			return &TreeNode{
 				Name:     name,
-				Children: map[string]*TreeNode{},
+				Children: []*TreeNode{},
 			}
 		}
 
@@ -24,7 +24,7 @@ func BuildCallTree(functions map[string]*Function) map[string]*TreeNode {
 
 		node := &TreeNode{
 			Name:     name,
-			Children: map[string]*TreeNode{},
+			Children: []*TreeNode{},
 		}
 
 		fn := functions[name]
@@ -34,8 +34,10 @@ func BuildCallTree(functions map[string]*Function) map[string]*TreeNode {
 
 		for _, called := range fn.Calls {
 			if functions[called] != nil {
-				node.Children[called] =
-					build(called, copyVisited(visited))
+				node.Children = append(
+					node.Children,
+					build(called, copyVisited(visited)),
+				)
 			}
 		}
 
