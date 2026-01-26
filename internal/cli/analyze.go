@@ -25,8 +25,8 @@ func init() {
 	analyzeCmd.Flags().StringVar(&focusFn, "focus", "", "Focus on a specific function")
 	analyzeCmd.Flags().BoolVar(&showFile, "show-file", false, "Show source file name")
 	analyzeCmd.Flags().BoolVarP(&recursive, "recursive", "r", false, "Scan directories recursively")
-	analyzeCmd.Flags().StringSliceVar(&excludeDirs, "exclude-dir", []string{"node_modules"}, "Directories to exclude")
-	analyzeCmd.Flags().StringSliceVar(&extensions, "ext", []string{".js"}, "File extensions to include")
+	analyzeCmd.Flags().StringSliceVar(&excludeDirs, "exclude-dir", []string{}, "Directories to exclude")
+	analyzeCmd.Flags().StringSliceVar(&extensions, "ext", []string{}, "File extensions to include")
 
 	rootCmd.AddCommand(analyzeCmd)
 }
