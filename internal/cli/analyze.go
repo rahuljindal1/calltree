@@ -1,12 +1,15 @@
 package cli
 
 import (
+	"bufio"
 	"calltree/internal/core"
 	"calltree/internal/languages/javascript"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -100,13 +103,116 @@ func init() {
 }
 
 var analyzeCmd = &cobra.Command{
-	Use:   "analyze <file>",
-	Short: "Analyze a source file",
-	Args:  cobra.ExactArgs(1),
+	Use:   "analyze",
+	Short: "Analyze source code (interactive mode)",
+
+	Args: cobra.NoArgs,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return analyzeFile(args[0])
+		return runInteractiveAnalyze()
 	},
+}
+
+func runInteractiveAnalyze() error {
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Println("Calltree Interactive Analysis")
+	fmt.Println("------------------------------")
+
+	// 1. Path
+	fmt.Print("Enter file or directory path: ")
+	path, err := readLine(reader)
+	if err != nil {
+		return err
+	}
+
+	info, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+
+	if info.IsDir() {
+		fmt.Print("Scan recursively? (y/N): ")
+		ans, _ := readLine(reader)
+		recursive = strings.EqualFold(ans, "y")
+
+		// 3. Exclude dirs
+		fmt.Printf("Exclude directories (comma-separated) [%s]: ",
+			strings.Join(excludeDirs, ","),
+		)
+		excl, _ := readLine(reader)
+		if excl != "" {
+			excludeDirs = splitCSV(excl)
+		}
+
+		// 4. Extensions
+		fmt.Printf("File extensions [%s]: ",
+			strings.Join(extensions, ","),
+		)
+		ext, _ := readLine(reader)
+		if ext != "" {
+			extensions = splitCSV(ext)
+		}
+	}
+
+	// 5. Focus
+	fmt.Print("Focus on function (leave empty to skip): ")
+	focus, _ := readLine(reader)
+	if focus != "" {
+		focusFn = focus
+	}
+
+	// 6. Depth
+	fmt.Printf("Max depth (-1 = unlimited) [%d]: ", depthOnly)
+	depthStr, _ := readLine(reader)
+	if depthStr != "" {
+		if d, err := strconv.Atoi(depthStr); err == nil {
+			depthOnly = d
+		}
+	}
+
+	// 7. Output format
+	fmt.Println("Output format:")
+	fmt.Println("  1) Tree (CLI)")
+	fmt.Println("  2) JSON")
+	fmt.Print("Select [1]: ")
+	format, _ := readLine(reader)
+
+	if format == "2" {
+		jsonOutput = true
+		fmt.Print("JSON output file (leave empty for stdout): ")
+		jf, _ := readLine(reader)
+		jsonFile = jf
+	}
+
+	// 8. Show file names
+	fmt.Print("Show file names? (y/N): ")
+	sf, _ := readLine(reader)
+	showFile = strings.EqualFold(sf, "y")
+
+	fmt.Println("\nRunning analysis...\n")
+
+	return analyzeFile(path)
+}
+
+func readLine(r *bufio.Reader) (string, error) {
+	line, err := r.ReadString('\n')
+	if err != nil && err != io.EOF {
+		return "", err
+	}
+	return strings.TrimSpace(line), nil
+}
+
+func splitCSV(s string) []string {
+	parts := strings.Split(s, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
 }
 
 func analyzeFile(path string) error {
