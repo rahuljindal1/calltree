@@ -1,0 +1,31 @@
+# -------- Build stage --------
+FROM golang:1.22-alpine AS builder
+
+WORKDIR /app
+
+# ✅ REQUIRED for CGO
+RUN apk add --no-cache build-base
+
+# Cache deps
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source
+COPY . .
+
+# ✅ CGO ENABLED
+RUN CGO_ENABLED=1 GOOS=linux \
+    go build -o calltree ./cmd/calltree
+
+
+# -------- Runtime stage --------
+FROM alpine:3.19
+
+WORKDIR /app
+
+# Runtime deps for CGO binary
+RUN apk add --no-cache libc6-compat ca-certificates
+
+COPY --from=builder /app/calltree /usr/local/bin/calltree
+
+ENTRYPOINT ["calltree"]
