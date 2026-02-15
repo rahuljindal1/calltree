@@ -28,7 +28,7 @@ func runInteractiveAnalyze() error {
 	if cfg, err := loadLastRun(); err == nil {
 		printConfig(cfg)
 
-		fmt.Print("Re-run this configuration? (Y/n): ")
+		fmt.Print("Re-run this configuration? (y/n): ")
 		ans, _ := readLine(reader)
 
 		if ans == "" || strings.EqualFold(ans, "y") {

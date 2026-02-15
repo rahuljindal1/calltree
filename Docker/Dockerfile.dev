@@ -12,7 +12,14 @@ RUN apk add --no-cache \
 
 WORKDIR /workspace
 
-# Tree-sitter needs CGO
+# Tree-sitter + Delve require CGO
 ENV CGO_ENABLED=1
+
+# Ensure Go binaries are available on PATH
+ENV PATH="/go/bin:${PATH}"
+
+# Install Delve debugger
+RUN go install github.com/go-delve/delve/cmd/dlv@v1.22.1
+
 
 CMD ["sleep", "infinity"]
