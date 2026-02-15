@@ -22,6 +22,10 @@ var ignoredCalls = map[string]bool{
 	"forEach":     true,
 	"flatMap":     true,
 	"push":        true,
+	"join":        true,
+	"has":         true,
+	"add":         true,
+	"from":        true,
 
 	// framework / DI noise
 	"Inject": true,
