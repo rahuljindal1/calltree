@@ -1,10 +1,10 @@
-package javascript
+package typescript
 
 import (
 	"context"
 
 	sitter "github.com/smacker/go-tree-sitter"
-	javascript "github.com/smacker/go-tree-sitter/javascript"
+	typescript "github.com/smacker/go-tree-sitter/typescript/tsx"
 
 	"calltree/internal/core"
 )
@@ -22,7 +22,7 @@ func NewParser(opts core.ParseOptions) core.LanguageParser {
 func (p *Parser) Parse(source []byte, fileName string) (*core.FileAnalysis, error) {
 
 	parser := sitter.NewParser()
-	parser.SetLanguage(javascript.GetLanguage())
+	parser.SetLanguage(typescript.GetLanguage())
 
 	tree, err := parser.ParseCtx(
 		context.Background(),
@@ -34,7 +34,7 @@ func (p *Parser) Parse(source []byte, fileName string) (*core.FileAnalysis, erro
 	}
 
 	analysis := &core.FileAnalysis{
-		Language:  "javascript",
+		Language:  "typescript",
 		Functions: make(map[string]*core.Function),
 	}
 

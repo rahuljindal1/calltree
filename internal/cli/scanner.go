@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"calltree/internal/core"
-	"calltree/internal/languages/javascript"
+	"calltree/internal/languages/typescript"
 )
 
 func analyzeDirectory(root string) (map[string]*core.Function, error) {
@@ -51,7 +51,7 @@ func analyzeSingleFile(filePath string) (map[string]*core.Function, error) {
 		return nil, err
 	}
 
-	parser := javascript.NewParser(core.ParseOptions{IncludeBuiltins: includeBuiltins})
+	parser := typescript.NewParser(core.ParseOptions{IncludeBuiltins: includeBuiltins})
 
 	result, err := parser.Parse(code, filepath.Base(filePath))
 	if err != nil {

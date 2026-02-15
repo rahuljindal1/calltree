@@ -27,7 +27,7 @@ The tool is designed with a clean separation between a reusable core and languag
 
 Currently supported language:
 
-- **JavaScript** (via Tree-sitter)
+- **TypeScript** (via Tree-sitter)
 
 ---
 

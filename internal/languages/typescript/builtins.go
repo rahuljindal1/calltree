@@ -1,4 +1,4 @@
-package javascript
+package typescript
 
 var ignoredCalls = map[string]bool{
 	// primitives / globals
