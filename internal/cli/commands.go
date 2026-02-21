@@ -68,7 +68,7 @@ analyze main.js -d=1
 		// -----------------------------------
 		// Interactive mode
 		// -----------------------------------
-		if len(path) == 1 && !hasUserFlags(cmd) {
+		if len(args) == 1 && !hasUserFlags(cmd) {
 			if rerun {
 				return runLastAnalysis(path)
 			}
