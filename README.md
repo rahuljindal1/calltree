@@ -23,15 +23,32 @@ The tool is designed with a clean separation between a reusable core and languag
 - 🚫 Exclude noisy directories (e.g. `node_modules`)
 - 🧠 Language-aware filtering of built-in calls
 - 📄 Optional JSON output for tooling and automation
-- 🔁 Re-run last analysis configuration easily
+- 📄 Write JSON output to a file
+- 📍 Show source file names per function
+- 🔁 Re-run last analysis configuration easily (`--rerun`)
 
-Currently supported language:
+**Currently supported language:**
 
-- **TypeScript** (via Tree-sitter)
+- **TypeScript / TSX** (via Tree-sitter)
 
 ---
 
 ## 🚀 Getting Started
+
+### Prerequisites
+
+- **Go 1.22+**
+- **CGO** enabled (required for Tree-sitter)
+
+### Build & Install
+
+```bash
+# Build
+go build -o calltree ./cmd/calltree
+
+# Or install to $GOPATH/bin
+go install ./cmd/calltree
+```
 
 ### Run interactively
 
@@ -43,23 +60,37 @@ If no arguments are provided, calltree starts in interactive mode and guides you
 
 - selecting files or directories
 - choosing output format
-- configuring depth, focus, recursion, and more
+- configuring depth, focus, recursion, extensions, and more
 
-Analyze a single file
+### Analyze a single file
 
-```
-calltree analyze src/app.js
-```
-
-Analyze a directory recursively
-
-```
-calltree analyze src -r
+```bash
+calltree analyze src/app.ts
 ```
 
-### 📤 Output Formats
+### Analyze a directory recursively
 
-Tree output (default)
+```bash
+calltree analyze src -r --ext .ts --ext .tsx
+```
+
+For recursive scanning, use `--ext` to specify file extensions (e.g. `.ts`, `.tsx`). Exclude directories with `--exclude-dir`:
+
+```bash
+calltree analyze . -r --ext .ts --ext .tsx --exclude-dir node_modules
+```
+
+### Re-run last analysis
+
+```bash
+calltree analyze --rerun
+```
+
+---
+
+## 📤 Output Formats
+
+### Tree output (default)
 
 ```
 initApp
@@ -69,15 +100,15 @@ initApp
    └─ connectDB
 ```
 
-JSON output
+### JSON output
 
-```
-calltree analyze src/app.js --json
+```bash
+calltree analyze src/app.ts --json
 ```
 
 Example:
 
-```
+```json
 [
   {
     "name": "initApp",
@@ -88,3 +119,52 @@ Example:
   }
 ]
 ```
+
+### Write JSON to file
+
+```bash
+calltree analyze src/app.ts --json --json-file output.json
+```
+
+---
+
+## 🐳 Docker
+
+### Development
+
+```bash
+docker compose -f Docker/docker-compose.yml up -d calltree
+docker compose -f Docker/docker-compose.yml exec calltree bash
+```
+
+### Production build
+
+```bash
+docker compose -f Docker/docker-compose.yml build calltree-exec
+```
+
+---
+
+## 🛠 Development
+
+The project includes a **Dev Container** (`.devcontainer/devcontainer.json`) for VSCode/Cursor. Open the folder in a dev container to get a preconfigured Go environment with Tree-sitter and Delve debugger.
+
+---
+
+## 📚 CLI Reference
+
+| Flag | Description |
+|------|-------------|
+| `--depth`, `-d` | Maximum call depth |
+| `--roots-only` | Show only entry-point functions |
+| `--json` | Output call tree as JSON |
+| `--json-file` | Write JSON output to file |
+| `--focus` | Focus on a specific function |
+| `--recursive`, `-r` | Scan directories recursively |
+| `--exclude-dir` | Directories to exclude (repeatable) |
+| `--ext` | File extensions to include (repeatable) |
+| `--rerun` | Re-run last analysis configuration |
+| `--show-file` | Show source file name per function |
+| `--include-builtins` | Include built-in calls (map, includes, etc.) |
+
+For a detailed flags reference, see [docs/cli-flags.md](docs/cli-flags.md).
