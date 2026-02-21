@@ -11,7 +11,6 @@ const lastRunDir = ".calltree"
 const lastRunFile = "last-run.json"
 
 type AnalyzeConfig struct {
-	Path            string   `json:"path"`
 	Recursive       bool     `json:"recursive"`
 	ExcludeDirs     []string `json:"excludeDirs"`
 	Extensions      []string `json:"extensions"`
@@ -60,7 +59,6 @@ func loadLastRun() (*AnalyzeConfig, error) {
 func printConfig(cfg *AnalyzeConfig) {
 	fmt.Println("\nLast analysis configuration:")
 	fmt.Println("----------------------------")
-	fmt.Printf("Path        : %s\n", cfg.Path)
 	fmt.Printf("Recursive   : %v\n", cfg.Recursive)
 	fmt.Printf("ExcludeDirs : %v\n", cfg.ExcludeDirs)
 	fmt.Printf("Extensions  : %v\n", cfg.Extensions)

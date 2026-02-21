@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 var (
@@ -36,26 +37,52 @@ func init() {
 }
 
 var analyzeCmd = &cobra.Command{
-	Use:   "analyze",
-	Short: "Analyze source code (interactive mode)",
-	Args:  cobra.MaximumNArgs(1),
+	Use:   "analyze <path>",
+	Short: "Analyze source code, Use -h options for more details.",
+	Long: `Analyze source code starting from the given file or directory.
+
+When a single path is provided, the command runs in INTERACTIVE MODE:
+- You will be guided through analysis options (depth, focus function, output format, etc.)
+- No analysis is executed until you confirm the configuration
+
+When multiple args are provided, the command runs in DIRECT MODE:
+- Analysis starts immediately
+- Flags are applied as provided
+- No interactive prompts are shown
+
+Examples:
+analyze src/
+	→ Interactive analysis for the src/ directory
+
+analyze main.js
+	→ Interactive analysis for main.go
+
+analyze main.js -d=1
+	→ Direct analysis of multiple paths
+`,
+	Args: cobra.MinimumNArgs(1),
 
 	RunE: func(cmd *cobra.Command, args []string) error {
+		path := args[0]
+
 		// -----------------------------------
 		// Interactive mode
 		// -----------------------------------
-		if len(args) == 0 {
+		if len(path) == 1 && !hasUserFlags(cmd) {
 			if rerun {
-				return runLastAnalysis()
+				return runLastAnalysis(path)
 			}
-			return runInteractiveAnalyze()
+			return runInteractiveAnalyze(path)
 		}
 
 		// -----------------------------------
 		// Direct CLI mode
 		// -----------------------------------
-		path := args[0]
-
-		return analyzeFile(path)
+		return analyzePath(path)
 	},
+}
+
+func hasUserFlags(cmd *cobra.Command) bool {
+	cmd.Flags().Visit(func(f *pflag.Flag) {})
+	return cmd.Flags().NFlag() > 0
 }

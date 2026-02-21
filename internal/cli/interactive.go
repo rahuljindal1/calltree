@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func runLastAnalysis() error {
+func runLastAnalysis(path string) error {
 	cfg, err := loadLastRun()
 	if err != nil {
 		return fmt.Errorf(
@@ -18,10 +18,10 @@ func runLastAnalysis() error {
 	}
 
 	applyConfig(cfg)
-	return analyzeFile(cfg.Path)
+	return analyzePath(path)
 }
 
-func runInteractiveAnalyze() error {
+func runInteractiveAnalyze(path string) error {
 	reader := bufio.NewReader(os.Stdin)
 
 	// 🔁 RERUN PROMPT (FIRST)
@@ -33,21 +33,15 @@ func runInteractiveAnalyze() error {
 
 		if ans == "" || strings.EqualFold(ans, "y") {
 			applyConfig(cfg)
-			fmt.Println("\nRe-running previous analysis...\n")
-			return analyzeFile(cfg.Path)
+			fmt.Println("Re-running previous analysis...")
+			return analyzePath(path)
 		}
 
-		fmt.Println("\nStarting a new interactive analysis...\n")
+		fmt.Println("Starting a new interactive analysis...")
 	}
 
 	fmt.Println("Calltree Interactive Analysis")
 	fmt.Println("------------------------------")
-
-	fmt.Print("Enter file or directory path: ")
-	path, err := readLine(reader)
-	if err != nil {
-		return err
-	}
 
 	info, err := os.Stat(path)
 	if err != nil {
@@ -55,7 +49,7 @@ func runInteractiveAnalyze() error {
 	}
 
 	if info.IsDir() {
-		fmt.Print("Scan recursively? (Y/n), Default = YES: ")
+		fmt.Print("Scan recursively? (Y/n), Default = Y: ")
 		ans, _ := readLine(reader)
 
 		if ans == "" || strings.EqualFold(ans, "y") {
@@ -104,7 +98,6 @@ func runInteractiveAnalyze() error {
 	includeBuiltins = strings.EqualFold(mustRead(reader), "y")
 
 	cfg := AnalyzeConfig{
-		Path:            path,
 		Recursive:       recursive,
 		ExcludeDirs:     excludeDirs,
 		Extensions:      extensions,
@@ -119,7 +112,7 @@ func runInteractiveAnalyze() error {
 
 	_ = saveLastRun(cfg)
 
-	return analyzeFile(path)
+	return analyzePath(path)
 }
 
 func applyConfig(cfg *AnalyzeConfig) {
