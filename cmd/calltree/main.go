@@ -1,6 +1,6 @@
 package main
 
-import "calltree/internal/cli"
+import "github.com/rahuljindal1/calltree/internal/cli"
 
 func main() {
 	cli.Execute()

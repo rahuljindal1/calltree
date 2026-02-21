@@ -3,9 +3,8 @@ package typescript
 import (
 	"strings"
 
+	"github.com/rahuljindal1/calltree/internal/core"
 	sitter "github.com/smacker/go-tree-sitter"
-
-	"calltree/internal/core"
 )
 
 type Visitor struct {

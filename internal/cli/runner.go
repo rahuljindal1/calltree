@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"calltree/internal/core"
+	"github.com/rahuljindal1/calltree/internal/core"
 )
 
 func analyzePath(path string) error {

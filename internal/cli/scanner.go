@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"calltree/internal/core"
-	"calltree/internal/languages/typescript"
+	"github.com/rahuljindal1/calltree/internal/core"
+	"github.com/rahuljindal1/calltree/internal/languages/typescript"
 )
 
 func analyzeDirectory(root string) (map[string]*core.Function, error) {

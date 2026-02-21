@@ -3,10 +3,9 @@ package typescript
 import (
 	"context"
 
+	"github.com/rahuljindal1/calltree/internal/core"
 	sitter "github.com/smacker/go-tree-sitter"
 	typescript "github.com/smacker/go-tree-sitter/typescript/tsx"
-
-	"calltree/internal/core"
 )
 
 type Parser struct {

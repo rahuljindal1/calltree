@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"calltree/internal/core"
+	"github.com/rahuljindal1/calltree/internal/core"
 )
 
 func renderTree(tree map[string]*core.TreeNode, functions map[string]*core.Function) error {
