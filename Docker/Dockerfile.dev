@@ -21,4 +21,6 @@ ENV PATH="/go/bin:${PATH}"
 # Install Delve debugger (Go 1.26 compatible)
 RUN go install github.com/go-delve/delve/cmd/dlv@1.26.0
 
+RUN go install golang.org/x/exp/cmd/gorelease@latest
+
 CMD ["sleep", "infinity"]
