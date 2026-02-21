@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine
+FROM golang:1.26-alpine
 
 RUN apk add --no-cache \
     git \
@@ -18,8 +18,7 @@ ENV CGO_ENABLED=1
 # Ensure Go binaries are available on PATH
 ENV PATH="/go/bin:${PATH}"
 
-# Install Delve debugger
-RUN go install github.com/go-delve/delve/cmd/dlv@v1.22.1
-
+# Install Delve debugger (Go 1.26 compatible)
+RUN go install github.com/go-delve/delve/cmd/dlv@1.26.0
 
 CMD ["sleep", "infinity"]
