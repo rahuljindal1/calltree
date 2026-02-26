@@ -20,12 +20,12 @@ The tool is designed with a clean separation between a reusable core and languag
 - 🎯 Focus analysis on a specific function
 - 📏 Limit depth to control large outputs
 - 📁 Recursive directory scanning
-- 🚫 Exclude noisy directories (e.g. `node_modules`)
+- 🚫 Exclude noisy directories (e.g. node_modules)
 - 🧠 Language-aware filtering of built-in calls
 - 📄 Optional JSON output for tooling and automation
 - 📄 Write JSON output to a file
 - 📍 Show source file names per function
-- 🔁 Re-run last analysis configuration easily (`--rerun`)
+- 🔒 Read-only by default (no filesystem writes unless approved)
 
 **Currently supported language:**
 
@@ -37,7 +37,7 @@ The tool is designed with a clean separation between a reusable core and languag
 
 ### Prerequisites
 
-- **Go 1.22+**
+- **Go 1.26**
 - **CGO** enabled (required for Tree-sitter)
 
 ### Build & Install
@@ -61,6 +61,19 @@ If no arguments are provided, calltree starts in interactive mode and guides you
 - selecting files or directories
 - choosing output format
 - configuring depth, focus, recursion, extensions, and more
+
+Persistence behavior (important)
+
+- Calltree does not write any files by default
+- If a previous run exists, you may choose to re-run it
+- If Calltree needs to save configuration, it will ask first
+
+Example prompt:
+
+```bash
+This will create .calltree/last_run.json in the analyzed directory.
+Continue? (y/N):
+```
 
 ### Analyze a single file
 
@@ -112,10 +125,7 @@ Example:
 [
   {
     "name": "initApp",
-    "children": [
-      { "name": "loadConfig" },
-      { "name": "startServer" }
-    ]
+    "children": [{ "name": "loadConfig" }, { "name": "startServer" }]
   }
 ]
 ```
@@ -125,6 +135,26 @@ Example:
 ```bash
 calltree analyze src/app.ts --json --json-file output.json
 ```
+
+---
+
+## Persistence & State
+
+Calltree may optionally persist the last interactive configuration to enable rerun.
+
+### Project-local persistence
+
+If enabled by the user, Calltree stores:
+
+```bash
+<analysis-root>/
+└── .calltree/
+    └── last_run.json
+```
+
+- This directory is never created automatically
+- Creation requires explicit user confirmation
+- Recommended to add .calltree/ to .gitignore if you opt in
 
 ---
 
@@ -153,18 +183,16 @@ The project includes a **Dev Container** (`.devcontainer/devcontainer.json`) for
 
 ## 📚 CLI Reference
 
-| Flag | Description |
-|------|-------------|
-| `--depth`, `-d` | Maximum call depth |
-| `--roots-only` | Show only entry-point functions |
-| `--json` | Output call tree as JSON |
-| `--json-file` | Write JSON output to file |
-| `--focus` | Focus on a specific function |
-| `--recursive`, `-r` | Scan directories recursively |
-| `--exclude-dir` | Directories to exclude (repeatable) |
-| `--ext` | File extensions to include (repeatable) |
-| `--rerun` | Re-run last analysis configuration |
-| `--show-file` | Show source file name per function |
+| Flag                 | Description                                  |
+| -------------------- | -------------------------------------------- |
+| `--depth`, `-d`      | Maximum call depth                           |
+| `--roots-only`       | Show only entry-point functions              |
+| `--json`             | Output call tree as JSON                     |
+| `--json-file`        | Write JSON output to file                    |
+| `--focus`            | Focus on a specific function                 |
+| `--recursive`, `-r`  | Scan directories recursively                 |
+| `--exclude-dir`      | Directories to exclude (repeatable)          |
+| `--ext`              | File extensions to include (repeatable)      |
+| `--rerun`            | Re-run last analysis configuration           |
+| `--show-file`        | Show source file name per function           |
 | `--include-builtins` | Include built-in calls (map, includes, etc.) |
-
-For a detailed flags reference, see [docs/cli-flags.md](docs/cli-flags.md).
