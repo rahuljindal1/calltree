@@ -97,20 +97,30 @@ func runInteractiveAnalyze(path string) error {
 	fmt.Print("Include built-in calls (map, includes, Number, etc.)? (y/N), Default = NO: ")
 	includeBuiltins = strings.EqualFold(mustRead(reader), "y")
 
-	cfg := AnalyzeConfig{
-		Recursive:       recursive,
-		ExcludeDirs:     excludeDirs,
-		Extensions:      extensions,
-		FocusFn:         focusFn,
-		Depth:           depthOnly,
-		JSON:            jsonOutput,
-		JSONFile:        jsonFile,
-		ShowFile:        showFile,
-		RootsOnly:       rootsOnly,
-		IncludeBuiltins: includeBuiltins,
-	}
+	fmt.Printf(
+		"This will create .calltree/last_run.json in %s.\nContinue? (y/n): ",
+		path,
+	)
 
-	_ = saveLastRun(cfg)
+	ans, _ := readLine(reader)
+	persistLastRun := strings.EqualFold(ans, "y")
+
+	if persistLastRun {
+		cfg := AnalyzeConfig{
+			Recursive:       recursive,
+			ExcludeDirs:     excludeDirs,
+			Extensions:      extensions,
+			FocusFn:         focusFn,
+			Depth:           depthOnly,
+			JSON:            jsonOutput,
+			JSONFile:        jsonFile,
+			ShowFile:        showFile,
+			RootsOnly:       rootsOnly,
+			IncludeBuiltins: includeBuiltins,
+		}
+
+		_ = saveLastRun(cfg)
+	}
 
 	return analyzePath(path)
 }
